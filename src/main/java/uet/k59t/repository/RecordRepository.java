@@ -9,4 +9,5 @@ import uet.k59t.model.Record;
  */
 @Repository
 public interface RecordRepository extends CrudRepository<Record,Long>{
+    Record findByMota(String mota);
 }

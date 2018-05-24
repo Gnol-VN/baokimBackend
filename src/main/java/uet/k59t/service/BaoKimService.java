@@ -1,5 +1,9 @@
 package uet.k59t.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,9 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uet.k59t.model.BaoKimList;
 import uet.k59t.model.Record;
+import uet.k59t.model.Student;
 import uet.k59t.repository.RecordRepository;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +37,7 @@ public class BaoKimService {
     public List<Record> updateRecord(){
 //        System.setProperty("webdriver.gecko.driver", "C:\\Users\\Long laptop\\Desktop\\schoolMessage\\baokimBackend\\chromedriver.exe");
 //        WebDriver driver = new ChromeDriver();
-        File file = new File("C:/Users/Long laptop/Desktop/schoolMessage/baokimBackend/phantomjs.exe");
+        File file = new File("C:/Users/Kien/Desktop/baokimBackend/phantomjs.exe");
         System.setProperty("phantomjs.binary.path", file.getAbsolutePath());
         WebDriver driver = new PhantomJSDriver();
         driver.get("https://www.baokim.vn/giao-dich/lich-su-giao-dich"); //launch Firefox and open Url
@@ -88,5 +98,43 @@ public class BaoKimService {
 
     public List<Record> getRecord() {
         return (List<Record>) recordRepository.findAll();
+    }
+
+    public List<Student> adminFeeList() {
+        String sURL = "http://192.168.1.102/school1/index.php?admin/list_class"; //just a string
+        List<Student> studentList = new ArrayList<>();
+
+        try {
+        // Connect to the URL using java's native library
+            URL url = new URL(sURL);
+            URLConnection request = url.openConnection();
+            request.connect();
+
+        // Convert to a JSON object to print data
+            JsonParser jp = new JsonParser(); //from gson
+            JsonElement root = null; //Convert the input stream to a json element
+
+            root = jp.parse(new InputStreamReader((InputStream) request.getContent()));
+
+            JsonArray rootobj = root.getAsJsonArray(); //May be an array, may be an object.
+            for(int i = 0; i < rootobj.size(); i++) {
+                JsonObject studentGson = rootobj.get(i).getAsJsonObject();
+                Student student = new Student();
+                student.setStudentName(studentGson.get("studentName").getAsString());
+                student.setClassName(studentGson.get("className").getAsString());
+                student.setParentName(studentGson.get("parentName").getAsString());
+                student.setClassId(studentGson.get("class_id").getAsInt());
+                student.setClassId(studentGson.get("parent_id").getAsInt());
+
+                if(recordRepository.findByMota(student.getStudentName()) != null){
+                    student.setPaymentStatus(true);
+                }
+                else student.setPaymentStatus(false);
+                studentList.add(student);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return studentList;
     }
 }

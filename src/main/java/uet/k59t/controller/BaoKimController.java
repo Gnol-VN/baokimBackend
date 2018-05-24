@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uet.k59t.model.Record;
+import uet.k59t.model.Student;
 import uet.k59t.service.BaoKimService;
 
 import java.util.List;
@@ -25,4 +26,8 @@ public class BaoKimController {
     public List<Record> getRecord(){
         return baoKimService.getRecord();
     }
+
+    @RequestMapping(value = "admingetpayment", method = RequestMethod.GET)
+    public List<Student> adminFeeList() {return baoKimService.adminFeeList();}
+
 }

@@ -9,14 +9,32 @@ public class Student {
     private String studentName;
     private String className;
     private String parentName;
-    private String status;
+    private boolean paymentStatus;
+    private int classId;
+    private int parentId;
 
-    public String getStatus() {
-        return status;
+    public int getParentId() {
+        return parentId;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setParentId(int parentId) {
+        this.parentId = parentId;
+    }
+
+    public int getClassId() {
+        return classId;
+    }
+
+    public void setClassId(int classId) {
+        this.classId = classId;
+    }
+
+    public boolean isPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(boolean paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public String getStudentName() {
