@@ -7,6 +7,7 @@ import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import java.io.IOException;
 
 
 @SpringBootApplication
+@EnableScheduling
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class);
@@ -40,7 +42,7 @@ public class Application {
                         "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method," +
                                 "Access-Control-Request-Headers,Authorization," +
                                 "auth-token,ra_preferred_ip," +
-                                "Pragma,Cache-Control,Expires");
+                                "Pragma,Cache-Control,Expires, role, parentName");
                 if ("OPTIONS".equals(method)) {
                     response.setStatus(HttpStatus.OK.value());
                 } else {

@@ -37,7 +37,7 @@ public class BaoKimService {
     public List<Record> updateRecord(){
 //        System.setProperty("webdriver.gecko.driver", "C:\\Users\\Long laptop\\Desktop\\schoolMessage\\baokimBackend\\chromedriver.exe");
 //        WebDriver driver = new ChromeDriver();
-        File file = new File("C:/Users/Kien/Desktop/baokimBackend/phantomjs.exe");
+        File file = new File("C:/Users/Long laptop/Desktop/schoolMessage/baokimBackend/phantomjs.exe");
         System.setProperty("phantomjs.binary.path", file.getAbsolutePath());
         WebDriver driver = new PhantomJSDriver();
         driver.get("https://www.baokim.vn/giao-dich/lich-su-giao-dich"); //launch Firefox and open Url
@@ -101,7 +101,7 @@ public class BaoKimService {
     }
 
     public List<Student> adminFeeList() {
-        String sURL = "http://192.168.1.102/school1/index.php?admin/list_class"; //just a string
+        String sURL = "http://localhost/school1/index.php?admin/list_class"; //just a string
         List<Student> studentList = new ArrayList<>();
 
         try {
@@ -124,7 +124,7 @@ public class BaoKimService {
                 student.setClassName(studentGson.get("className").getAsString());
                 student.setParentName(studentGson.get("parentName").getAsString());
                 student.setClassId(studentGson.get("class_id").getAsInt());
-                student.setClassId(studentGson.get("parent_id").getAsInt());
+                student.setParentId(studentGson.get("parent_id").getAsInt());
 
                 if(recordRepository.findByMota(student.getStudentName()) != null){
                     student.setPaymentStatus(true);
@@ -136,5 +136,49 @@ public class BaoKimService {
             e.printStackTrace();
         }
         return studentList;
+    }
+    public List<Student> getPaymentStatus(String role, String parentName) throws Exception {
+        if (role.equalsIgnoreCase("Admin")) {
+
+        }
+        if (role.equalsIgnoreCase("Parent")) {
+            String sURL = "http://localhost/school1/index.php?admin/list_class"; //just a string
+
+            // Connect to the URL using java's native library
+            URL url = new URL(sURL);
+            URLConnection request = url.openConnection();
+            request.connect();
+
+            // Convert to a JSON object to print data
+            JsonParser jp = new JsonParser(); //from gson
+            JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent())); //Convert the input stream to a json element
+            JsonArray listStudent = root.getAsJsonArray(); //May be an array, may be an object.
+            List<Student> studentofParent = new ArrayList<Student>();
+            for (int i = 0; i < listStudent.size(); i++) {
+                if(listStudent.get(i).getAsJsonObject().get("parentName").getAsString().equalsIgnoreCase(parentName)){
+                    Student student = new Student();
+                    student.setClassName(listStudent.get(i).getAsJsonObject().get("className").getAsString());
+                    student.setParentName(listStudent.get(i).getAsJsonObject().get("parentName").getAsString());
+                    student.setClassId(listStudent.get(i).getAsJsonObject().get("class_id").getAsInt());
+                    student.setParentId(listStudent.get(i).getAsJsonObject().get("parent_id").getAsInt());
+                    student.setStudentName(listStudent.get(i).getAsJsonObject().get("studentName").getAsString());
+                    studentofParent.add(student);
+                }
+            }
+            List<Student> returnPayment = new ArrayList<Student>();
+            for (int i = 0; i < studentofParent.size(); i++) {
+                Student student = studentofParent.get(i);
+                List<Record> recordList = (List<Record>) recordRepository.findAll();
+                for (int j = 0; j < recordList.size(); j++) {
+                    if(recordList.get(j).getMota().equalsIgnoreCase(student.getStudentName())){
+                        student.setPaymentStatus(true);
+                    }
+                }
+                returnPayment.add(student);
+            }
+            return returnPayment;
+
+        }
+        throw  new Exception("Role is not appropriate");
     }
 }

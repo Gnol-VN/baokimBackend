@@ -8,6 +8,7 @@ import uet.k59t.model.Record;
 import uet.k59t.model.Student;
 import uet.k59t.service.BaoKimService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -17,6 +18,8 @@ import java.util.List;
 public class BaoKimController {
     @Autowired
     BaoKimService baoKimService;
+    @Autowired
+    HttpServletRequest httpServletRequest;
 
     @RequestMapping(value = "updaterecord", method = RequestMethod.GET)
     public List<Record> updateRecord(){
@@ -28,6 +31,13 @@ public class BaoKimController {
     }
 
     @RequestMapping(value = "admingetpayment", method = RequestMethod.GET)
-    public List<Student> adminFeeList() {return baoKimService.adminFeeList();}
+    public List<Student> adminFeeList() {
+        return baoKimService.adminFeeList();
+    }
+
+    @RequestMapping(value = "parentgetpayment", method = RequestMethod.GET)
+    public List<Student> getPaymentStatus() throws Exception {
+        return baoKimService.getPaymentStatus(httpServletRequest.getHeader("role"),httpServletRequest.getHeader("parentName"));
+    }
 
 }
